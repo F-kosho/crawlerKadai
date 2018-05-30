@@ -17,7 +17,7 @@ public class makeSalesData {
     public static void main(String[] args) throws IOException {
         // 読み取るcsvファイルの種類を指定
         int gender = 0; // 性別
-        int category = 0; // 商品カテゴリ
+        int category = 1; // 商品カテゴリ
         /*
          * 引数の対応表 性別:0=メンズ, 1=レディース, 2=キッズ 
          * カテゴリ：0=トップス, 1=ジャケット・アウター, 2=パンツ, 3=オールインワン,
