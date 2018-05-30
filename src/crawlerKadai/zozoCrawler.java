@@ -23,15 +23,16 @@ public class zozoCrawler {
         System.out.println("クロール＆スクレイプ処理を開始しました。");
 
         // 情報を取得したい商品群の対象性別とカテゴリを指定
-        int gender = 1;
-        int category = 21;
+        int gender = 0;
+        int category = 22;
         /*
-         * 引数の対応表 性別:0=メンズ, 1=レディース, 2=キッズ カテゴリ：0=トップス, 1=ジャケット・アウター, 2=パンツ, 3=オールインワン,
+         * 引数の対応表 性別:0=メンズ, 1=レディース, 2=キッズ 
+         * カテゴリ：0=トップス, 1=ジャケット・アウター, 2=パンツ, 3=オールインワン,
          * 4=スカート, 5=ワンピース, 6=スーツ・ネクタイ, 7=バッグ, 8=シューズ, 9=ファッション雑貨, 10=財布・小物, 11=時計,
          * 12=ヘアアクセサリー, 13=アクセサリー, 14=アンダーウェア, 15=レッグウェア, 16=帽子, 17=インテリア, 18=食器・キッチン,
          * 19=雑貨・ホビー・スポーツ, 20=コスメ・香水, 21=音楽・本・雑誌, 22=水着・着物・浴衣, 23=マタニティ・ベビー, 24=その他
          */
-        // getItemUrl(gender, category);
+        getItemUrl(gender, category);
         System.out.println("商品情報を取得しています");
         getItemData(gender, category);
         System.out.println("商品情報の取得が終了しました");
@@ -52,6 +53,7 @@ public class zozoCrawler {
         String rootUrl = makeUrl(gender, category); // 商品一覧ページのURLを作成するメソッド（最後の方で作ってある）
 
         String rootUrlPerPage = "";
+        int count = 0;
         for (int i = 1; i < 3; i++) { // 商品一覧のページから、各商品の詳細ページのURLを取得・格納していく
             if (i == 1) { // 1ページ目のURL
                 rootUrlPerPage = rootUrl;
@@ -60,6 +62,8 @@ public class zozoCrawler {
             }
             Document doc = Jsoup.connect(rootUrlPerPage).get();
             Thread.sleep(1000);
+            count++;
+            System.out.println(count);
 
             try {
                 Elements els = doc.getElementsByClass("thumb");
@@ -100,14 +104,14 @@ public class zozoCrawler {
 
     // 取得した商品詳細ページを順にクローリングしていき、各商品の情報を取得していくメソッド
     static void getItemData(int gender, int category) throws IOException, InterruptedException {
-        // for (int i = 0; i < itemUrlList.size(); i++) { // テストが終わったら戻す
-        for (int i = 0; i < 1; i++) { // テスト用
-            // String itemUrl = itemUrlList.get(i); テストが終わったら戻す
+        int count = 0;
+        for (int i = 0; i < itemUrlList.size(); i++) {
+            String itemUrl = itemUrlList.get(i);
 
-            // テスト用商品URL。完成したら消す
-            String itemUrl = "http://zozo.jp/shop/millioncarats/goods/30973403/?did=54358295&rid=1093";
             Document doc = Jsoup.connect(itemUrl).get();
             Thread.sleep(1000);
+            count++;
+            System.out.println(count);
 
             // 商品情報を取得していく
             try { // itemUrlListの要素数を超えたら終了
@@ -182,6 +186,11 @@ public class zozoCrawler {
                             String[] sizeStockAry = sizeStock.split(" / ");
                             String size = sizeStockAry[0];
                             codeColorSize = clearItemCode + "-" + colorName + "-" + size;
+                            
+                            // もし商品コードにカンマが含まれていたら取り除く
+                            if (codeColorSize.contains(",")) {
+                                codeColorSize = codeColorSize.replaceAll(",", "-");
+                            }
                             itemMap.put("商品コード", codeColorSize);
                             // そのマップを値としてマップに格納（codeItemMap）
                             codeItemMap.put(codeColorSize, itemMap);
@@ -214,7 +223,7 @@ public class zozoCrawler {
     
     // 取得したデータをcsvファイルに書き出す
     static void makeItemListCsv(int gender, int category) throws IOException {
-        Path filePath = Paths.get("C:\\TechTraining\\resources\\itemList" + gender + category + date2 + ".csv");
+        Path filePath = Paths.get("C:\\Users\\apex\\eclipse-workspace\\crawlerKadai\\src\\crawlerKadai\\resources\\itemList" + gender + category + date2 + ".csv");
         String contents = ""; // 書き込む内容
         try (BufferedWriter bw = Files.newBufferedWriter(filePath)){
             // ヘッダー行を作成
@@ -235,7 +244,7 @@ public class zozoCrawler {
     
     // 取得した在庫情報をcsvファイルに書き出す
     static void makeStockListCsv(int gender, int category) throws IOException {
-        Path filePath = Paths.get("C:\\TechTraining\\resources\\stockList" + gender + category + date2 + ".csv");
+        Path filePath = Paths.get("C:\\Users\\apex\\eclipse-workspace\\crawlerKadai\\src\\crawlerKadai\\resources\\stockList" + gender + category + date2 + ".csv");
         String contents = "";
         try (BufferedWriter bw = Files.newBufferedWriter(filePath)) {
             // ヘッダー行を作成
